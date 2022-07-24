@@ -8,10 +8,6 @@ const BASE_URL = "https://hack-or-snooze-v3.herokuapp.com";
 
 class Story {
 
-  /** Make instance of Story from data object about story:
-   *   - {title, author, url, username, storyId, createdAt}
-   */
-
   constructor({ storyId, title, author, url, username, createdAt }) {
     this.storyId = storyId;
     this.title = title;

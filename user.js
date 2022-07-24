@@ -49,10 +49,9 @@ async function signup(evt) {
   $signupForm.trigger("reset");
 }
 
-
-
-
 $signupForm.on("submit", signup);  //event listener passes in submit function
+
+
 
 /** Handle click of logout button
  *
@@ -85,11 +84,6 @@ async function checkForRememberedUser() {
   currentUser = await User.loginViaStoredCredentials(token, username);  //this function is part of user class
 }
 
-/** Sync current user information to localStorage.
- *
- * We store the username/token in localStorage so when the page is refreshed
- * (or the user revisits the site later), they will still be logged in.
- */
 
 function saveUserCredentialsInLocalStorage() {
   console.debug("saveUserCredentialsInLocalStorage");
@@ -111,30 +105,28 @@ function saveUserCredentialsInLocalStorage() {
 
 async function updateUIOnUserLogin() {         //shows "logout with help of nav.js, then shows stories"
   console.debug("updateUIOnUserLogin");
-  markFaves();
-  $allStoriesList.show();
+  markFaves();                //marks user saved favorites
+  $allStoriesList.show();     //shows hidden stories
   updateNavOnLogin();
-  
 }
 
 
 
 
-async function toggleFavorite(id){
+async function handleFavorite(id){
   let repeat = false;
-
-  if (favorites){          //determines if you have already added to favorites
-  repeat = favorites.stories.some(function(val){
+  if (currentUser){        //determines if somoene is logged in and allowed to have favorites
+  if (favorites){          //favorites array must exist to be compared
+  repeat = favorites.stories.some(function(val){ //determines if any favorite stories have the same id as the clicked story
   return val.storyId == id;
-  });
-  }
+  })}
   
-  if (!repeat){
+  if (!repeat){      //determine whether to add or delete
   await addFav(id);
   }else{
     await deleteFav(id);
   }
-
+}
 }
 
 
@@ -146,7 +138,7 @@ async function addFav(id){       //adds post by id to the favorites list
   });
   const favArray = addFav.data.user.favorites;
   const stories = favArray.map(story => new Story(story));
-  favorites =  new StoryList(stories);
+  favorites =  new StoryList(stories);  //makes favorites into storyList for display
   return favorites;
 }
 
@@ -160,13 +152,13 @@ async function deleteFav(id){   //deletes post by id from the favorites list
     });
     const favArray = delFav.data.user.favorites;
     const stories = favArray.map(story => new Story(story));
-    favorites =  new StoryList(stories);
+    favorites =  new StoryList(stories); //makes favorites into storyList for display
     return favorites
   }
 
-function toggleFav(evt){
+function toggleFav(evt){    //runs the get/post function and handles UI display
   const newId = evt.target.parentElement.id;
-  toggleFavorite(newId);
+  handleFavorite(newId);
 
   if (evt.target.innerText == `★`){
     evt.target.innerText = 	`☆`;
@@ -180,12 +172,12 @@ function toggleFav(evt){
 $('.stories-list').on("click",".star",toggleFav)
 
 
-async function markFaves(){
-if (currentUser){
+async function markFaves(){  //inits whenever story lists are displayed and marks favorites with star
+if (currentUser){    //makes sure someone is logged in
 
-  await deleteFav(storyList.stories.at(-1).storyId);
+  await deleteFav(storyList.stories.at(-1).storyId); //sets favorites list into an array of stories
 
-  favorites.stories.forEach(function(val){
+  favorites.stories.forEach(function(val){  //iterates through favorites to mark them
     $(`#${val.storyId}`).children('.star').eq(0).text('★');
     $(`#${val.storyId}`).children('.star').attr("id","favorite")
   })

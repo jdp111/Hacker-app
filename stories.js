@@ -51,40 +51,29 @@ function putStoriesOnPage(storyDisplay) {
     $allStoriesList.append($story);
   }
   $allStoriesList.show();
-  //markStars()
   removePostsOption()
 }
 
 
 
-//function markStars(){
-  //setTimeout(function(){
-  
-//favorites.stories.forEach(function(val){
-  //  $(`#${val.storyId}`).children('.star').eq(0).text('★');
- //   $(`#${val.storyId}`).children('.star').attr("id","favorite")
-//  })
-//},500)}
-
-
-function removePostsOption(){
-
+function removePostsOption(){   //creates a remove button for posts that the user made
+ if (currentUser){   //if someone is logged in, the function will run
   storyList.stories.forEach(function(val){
-    if (val.username == currentUser.username){
+    if (val.username == currentUser.username){  //compare poster username to user
       const $removeButton = $('<button id = "delete">Remove</button>')
       $(`#${val.storyId}`).append($removeButton)
     }
-  })
+  })}
 }
 
 $('#all-stories-list').on("click",'#delete',async function(evt){
   
-  const ret = await axios({
+  await axios({   //inline function that will delete when the remove button is clicked
     url: `https://hack-or-snooze-v3.herokuapp.com/stories/${evt.target.parentElement.id}`,
     method: "DELETE",
     data: {"token": currentUser.loginToken},
   });
   evt.target.parentElement.remove()
-  storyList = await StoryList.getStories();
+  storyList = await StoryList.getStories();   //refreshes the story list to not include deleted items
 
 })
